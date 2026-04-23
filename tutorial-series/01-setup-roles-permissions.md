@@ -51,9 +51,11 @@ flowchart TD
 2. Pastikan tenant yang aktif benar (kanan atas).
 
 ### 2. Akses Role Management
-1. Klik **Settings** (ikon gear).
-2. Pilih **Solution settings** → **Unified Catalog** → **Roles and permissions**.
-3. Pilih tab **Governance domain roles**.
+1. Klik **Settings** (ikon gear, kanan atas).
+2. Di panel **Settings**, di bawah grup **Microsoft Purview**, pilih **Roles and scopes**.
+3. Pada halaman *Roles and scopes*, pilih **Governance domains** (atau **Data governance** → **Governance domains**, tergantung versi UI).
+
+> Sebagai alternatif, Anda bisa buka **Unified Catalog** → **Governance domains** → pilih domain → tab **Roles**. Hasilnya sama.
 
 ### 3. Buat / Pilih Governance Domain
 > Bila domain `Sales` belum ada, biarkan dulu — akan dibuat di **Modul 04**. Untuk demo cepat, Anda bisa pakai domain default atau buat sementara.
