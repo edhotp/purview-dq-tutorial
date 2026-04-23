@@ -12,3 +12,6 @@ Thumbs.db
 
 # Memory / scratch
 /memories/
+
+# Single-file tutorial (kept local only)
+Tutorial-Demo-Purview-DataQuality-AzureSQL.md

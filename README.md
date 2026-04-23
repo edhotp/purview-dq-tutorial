@@ -9,7 +9,6 @@ End-to-end tutorial series implementasi **Microsoft Purview Unified Catalog – 
 | Resource | Deskripsi |
 |----------|-----------|
 | 📖 [tutorial-series/](./tutorial-series/) | Tutorial step-by-step (12 modul) — **mulai di sini** |
-| 📄 [Tutorial-Demo-Purview-DataQuality-AzureSQL.md](./Tutorial-Demo-Purview-DataQuality-AzureSQL.md) | Versi single-file lengkap (untuk referensi cepat) |
 
 ➡️ **Mulai dari** [tutorial-series/README.md](./tutorial-series/README.md)
 
