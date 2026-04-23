@@ -1,42 +1,43 @@
 # Modul 01 – Setup Roles & Permissions di Purview
 
-> **Tujuan:** Memastikan user demo memiliki izin yang sesuai untuk mengelola Data Quality di Microsoft Purview Unified Catalog.
+> **Tujuan:** Memastikan user demo memiliki izin yang sesuai untuk mengelola Data Quality di Microsoft Purview Unified Catalog (sesuai [MS Learn 04/2026](https://learn.microsoft.com/purview/data-governance-roles-permissions)).
 
-⏱️ **Estimasi:** 10–15 menit · 🎯 **Output:** Akun demo memiliki kombinasi role yang dibutuhkan untuk profiling, rules, dan DQ scan
+⏱️ **Estimasi:** 10–15 menit · 🎯 **Output:** Akun demo bisa create governance domain + jalankan profiling/rules/DQ scan
 
 ---
 
 ## 📖 Penjelasan Singkat
 
-Microsoft Purview data governance memakai **3 lapis permission** (sesuai [Microsoft Learn](https://learn.microsoft.com/purview/data-governance-roles-permissions)):
+Microsoft Purview pakai **3 lapis permission**:
 
-| Lapis | Kelola di | Contoh role |
-|-------|-----------|-------------|
-| **Tenant-level role groups** | Microsoft Purview Compliance Portal (Settings → Roles and scopes → Role groups) | Purview Administrators, Data Source Administrators, Data Governance |
-| **Catalog-level roles** | Settings → **Solution settings** → **Unified Catalog** → **Roles and permissions** | Governance Domain Creator, Data Health Owner, Data Health Reader, Global Catalog Reader |
-| **Governance domain–level roles** | Di dalam domain → tab **Roles** | Governance Domain Owner, Data Product Owner, Data Steward, Data Quality Steward, Data Profile Steward, dll. |
+| Lapis | Lokasi pengelolaan | Contoh role |
+|-------|--------------------|-------------|
+| **1. Tenant-level role groups** | Microsoft Purview portal → **Settings → Roles and scopes → Role groups** *(compliance portal embedded)* | **Data Governance**, Purview Administrators, Data Source Administrators |
+| **2. Catalog-level roles** | **Settings → Solution settings → Unified Catalog → Roles and permissions** | Governance Domain Creator, Data Health Owner, Data Health Reader, Global Catalog Reader |
+| **3. Governance domain–level roles** | **Unified Catalog → Catalog management → Governance domains → [domain] → Roles tab** | Governance Domain Owner, Data Product Owner, Data Steward, Data Quality Steward, Data Profile Steward, dll. |
 
-Untuk demo Data Quality, fokus utama ada di **lapis ke-3 (governance domain–level)** — karena di sanalah `Data Quality Steward` dan `Data Profile Steward` di-assign.
+> 🔑 **Kunci di UI baru:** Lapis 2 (catalog-level) **hanya muncul** kalau akun Anda sudah ada di role group **Data Governance** (lapis 1). Bila tidak, menu "Roles and permissions" di Settings → Unified Catalog **tidak akan kelihatan**.
 
-> ⚠️ **Penting:** `Data Quality Steward` dan `Data Profile Steward` adalah **sub-role**. Keduanya **wajib dikombinasikan** dengan role induk **`Governance Domain Reader` + `Data Product Owner`** agar tombol *Profile*, *Rules*, dan *Run scan* aktif di portal.
+> ⚠️ **Sub-role wajib digabung:** `Data Quality Steward` dan `Data Profile Steward` adalah **sub-role** — wajib digabungkan dengan **Governance Domain Reader + Data Product Owner** agar tombol *Profile*, *Rules*, dan *Run scan* aktif.
 
 ---
 
-## 🧭 Hierarki Role
+## 🧭 Hierarki & Flow Permission
 
 ```mermaid
 flowchart TD
-    T[Tenant-level role groups<br/>Settings - Roles and scopes - Role groups] --> CL[Catalog-level roles<br/>Settings - Solution settings - Unified Catalog - Roles and permissions]
-    CL --> GDR[Governance domain roles<br/>Inside domain - Roles tab]
-    GDR --> R1[Governance Domain Owner]
-    GDR --> R2[Data Product Owner]
-    GDR --> R3[Governance Domain Reader]
-    GDR --> R4[Data Quality Steward<br/>sub-role]
-    GDR --> R5[Data Profile Steward<br/>sub-role]
-    R3 --> R4
-    R3 --> R5
-    R2 --> R4
-    R2 --> R5
+    L1[Lapis 1 - Tenant role groups<br/>Settings - Roles and scopes - Role groups<br/>Data Governance, Purview Administrators]
+    L2[Lapis 2 - Catalog roles<br/>Settings - Solution settings - Unified Catalog - Roles and permissions<br/>Governance Domain Creator, Data Health Owner/Reader, Global Catalog Reader]
+    L3[Lapis 3 - Domain roles<br/>Unified Catalog - Catalog management - Governance domains - domain - Roles<br/>Governance Domain Owner, Data Product Owner, Stewards]
+    L1 -- prasyarat lihat menu --> L2
+    L2 -- create domain --> L3
+    L3 --> R1[Governance Domain Owner]
+    L3 --> R2[Data Product Owner]
+    L3 --> R3[Governance Domain Reader]
+    R3 --> S1[Data Quality Steward sub-role]
+    R3 --> S2[Data Profile Steward sub-role]
+    R2 --> S1
+    R2 --> S2
 ```
 
 ---
@@ -45,66 +46,78 @@ flowchart TD
 
 | Role | Lapis | Untuk Apa | Wajib? |
 |------|-------|-----------|--------|
-| **Governance Domain Creator** | Catalog | Membuat governance domain baru | ✅ untuk owner demo |
-| **Governance Domain Owner** | Domain | Membuat & manage data product, assign role lain di domain | ✅ |
+| **Data Governance** *(role group)* | Tenant | Akses ke catalog-level role assignment, default Governance Domain Creator | ✅ untuk admin demo |
+| **Governance Domain Owner** | Domain | Manage data product + assign role lain di domain | ✅ |
 | **Data Product Owner** | Domain | Membuat data product, link assets | ✅ |
 | **Governance Domain Reader** | Domain | Prasyarat sub-role steward & reader | ✅ |
 | **Data Quality Steward** *(sub-role)* | Domain | Membuat & menjalankan rules + DQ scan | ✅ |
 | **Data Profile Steward** *(sub-role)* | Domain | Menjalankan profiling job | ✅ |
-| **Data Health Reader** | Catalog | Melihat dashboard health management | Opsional |
-| **Data Quality Reader** *(sub-role)* | Domain | Audience read-only untuk insight DQ | Opsional |
+| **Data Health Reader** | Catalog | Lihat dashboard Health Management | Opsional |
+| **Data Quality Reader** *(sub-role)* | Domain | Audience read-only insight DQ | Opsional |
 
 ---
 
 ## 🚀 Langkah-langkah
 
-### 1. Buka Purview Portal
+### 1. Buka Purview Portal & Cek Account Type
 1. Login ke [https://purview.microsoft.com](https://purview.microsoft.com).
-2. Pastikan tenant aktif benar (cek avatar kanan atas).
-3. Pastikan akun login sudah memiliki **Data Governance Administrator** atau **Purview Administrators** role group (jika belum, minta tenant admin).
+2. Cek tenant aktif di avatar kanan atas.
+3. Klik **Settings** (ikon gear di **left side-nav**, posisi bawah).
+4. Buka **Account** → pastikan **Account type = Enterprise** dan **Resource status = Active**.
+   > Bila Account type = *Free*, Unified Catalog/Data Quality **tidak tersedia**. Upgrade dulu (lihat [billing](https://learn.microsoft.com/purview/data-governance-billing)).
+5. Catat **Location** resource — pastikan termasuk [supported region untuk Data Quality](https://learn.microsoft.com/purview/data-catalog-regions).
 
-### 2. (Catalog level) Assign Governance Domain Creator
-> Lewati step ini jika user demo Anda sudah punya role tersebut.
+### 2. (Tenant level) Assign role group "Data Governance"
+> Tanpa ini, menu *Roles and permissions* di Unified Catalog Settings **tidak akan muncul**. Lewati bila admin Anda sudah ada di role group ini.
 
-1. Klik **Settings** (ikon gear di **left side-nav**, posisi bawah).
-2. Halaman pertama akan memunculkan **Account overview**. Di sidebar Settings, scroll ke bagian **Solution settings**, lalu klik **Unified Catalog**.
-3. Pada halaman Unified Catalog, pilih **Roles and permissions**.
-4. Pilih role **Governance Domain Creator** → klik ikon **+ Add user**.
-5. Cari user demo → **Save**.
-6. (Opsional) ulangi untuk **Data Health Reader** / **Data Health Owner** bila demo perlu akses Health management lintas domain.
+1. Masih di **Settings**, di sidebar pilih **Roles and scopes → Role groups**.
+2. Cari role group **Data Governance** → klik nama.
+3. Pada panel detail, klik **Edit** di bagian **Members**.
+4. Tambahkan user/group demo Anda → **Save**.
+5. (Opsional, untuk admin senior) tambahkan juga ke **Purview Administrators** untuk full control.
 
-> 💡 **Shortcut:** Bila tenant Anda sudah enable Unified Catalog, side-nav kiri akan menampilkan icon **Unified Catalog** langsung — bisa diklik untuk membuka catalog tanpa lewat **Solutions**.
+> 💡 **Tip:** Role group "Data Governance" dikelola via **Microsoft Purview compliance portal** yang ter-embed di Settings. Propagasi dapat butuh **5–15 menit**.
 
-> 🔍 **Tidak menemukan menu "Unified Catalog" di Settings?**
-> Tenant Anda belum di-provision untuk Unified Catalog. Cek bahwa:
-> - DGPU billing sudah aktif (lihat [billing](https://learn.microsoft.com/purview/data-governance-billing)).
-> - Region Purview termasuk [supported region](https://learn.microsoft.com/purview/data-catalog-regions) — di **Settings → Account** Anda dapat melihat *Location* resource Purview.
-> - **Account type** = **Enterprise** (cek di Settings → Account overview). Free tier tidak punya Unified Catalog.
-> - Solutions panel menampilkan **Unified Catalog** (bukan hanya **Data Catalog** classic).
+### 3. (Catalog level) Assign Governance Domain Creator
+> Lewati bila tenant Anda otomatis menjadikan member *Data Governance* sebagai domain creator (default behavior). Lakukan bila ingin meng-grant ke user lain.
 
-### 3. (Catalog level) Buat Governance Domain
-Modul lengkapnya ada di **[Modul 04](./04-create-governance-domain-data-product.md)**, tapi minimal harus ada satu domain dulu agar bisa assign role domain.
+1. Di **Settings** → bagian **Solution settings** → klik **Unified Catalog**.
+2. Di halaman Unified Catalog Settings, pilih **Roles and permissions**.
+3. Pilih role **Governance Domain Creator** → klik ikon **+ Add user**.
+4. Cari user → **Save**.
+5. (Opsional) ulangi untuk **Data Health Reader** / **Data Health Owner** bila user perlu akses Health Management lintas domain.
 
-1. Buka **Unified Catalog** dari **left side-nav** (icon Unified Catalog), atau lewat **Solutions → Unified Catalog**.
-2. Pilih **Governance domains** → **+ New governance domain**.
-3. Beri nama mis. `Sales`, type `Line of business` → **Save**.
-4. Klik domain → **Publish** (status harus *Published* sebelum bisa dipakai).
+> 🔍 **Menu "Roles and permissions" tidak muncul?**
+> Anda **belum** ada di role group **Data Governance** (lihat Step 2). Logout/login ulang setelah Step 2 lalu coba lagi.
 
-### 4. (Domain level) Assign Role di dalam Domain
-1. Buka domain `Sales` yang barusan dibuat.
-2. Klik tab **Roles**.
-3. Untuk **setiap role berikut**, klik **Edit** → tambahkan user/group demo → **Save**:
-   - ✅ Governance Domain Owner
-   - ✅ Data Product Owner
-   - ✅ Governance Domain Reader *(prasyarat sub-role)*
-   - ✅ Data Quality Steward *(sub-role)*
-   - ✅ Data Profile Steward *(sub-role)*
-   - (Opsional) Data Quality Reader — untuk audience read-only
+### 4. Buka Unified Catalog & Buat Governance Domain
+> Sebagai Governance Domain Creator, Anda otomatis menjadi Governance Domain Owner pada domain yang Anda buat.
 
-### 5. Verifikasi
+1. Klik icon **Unified Catalog** di **left side-nav** (atau lewat **Solutions → Unified Catalog**).
+2. Di sidebar Unified Catalog, pilih **Catalog management → Governance domains**.
+3. Klik **+ New governance domain**.
+4. Isi:
+   - **Name:** `Sales`
+   - **Description:** `Domain demo Data Quality – AdventureWorksLT`
+   - **Type:** `Line of business`
+   - **Parent domain:** *(none)*
+5. Klik **Next** → (skip Custom attributes) → **Create**.
+6. Buka domain `Sales` → klik **Edit** → ubah **Status = Published** → **Save**.
+
+### 5. (Domain level) Assign Role di dalam Domain
+1. Buka domain `Sales` → klik tab **Roles**.
+2. Untuk **setiap role**, klik tombol **+** di samping nama role → cari user demo → **Save**:
+   - ✅ **Governance Domain Owner** *(jika berbeda dari creator)*
+   - ✅ **Data Product Owner**
+   - ✅ **Governance Domain Reader** *(prasyarat sub-role)*
+   - ✅ **Data Quality Steward** *(sub-role)*
+   - ✅ **Data Profile Steward** *(sub-role)*
+   - (Opsional) **Data Quality Reader** untuk audience read-only
+
+### 6. Verifikasi
 1. Logout & login ulang ke [https://purview.microsoft.com](https://purview.microsoft.com) (refresh token).
-2. Klik **Unified Catalog** di left side-nav → buka **Health management** → **Data quality**.
-3. Anda harus dapat melihat tombol **Manage**, **Profile**, dan **+ New rule** ketika navigasi ke asset di domain.
+2. Klik **Unified Catalog** di left side-nav → **Health management → Data quality**.
+3. Pastikan tombol **Manage**, **Profile**, dan **+ New rule** terlihat ketika navigasi ke asset.
 
 ---
 
@@ -113,31 +126,33 @@ Modul lengkapnya ada di **[Modul 04](./04-create-governance-domain-data-product.
 | Item | Catatan |
 |------|---------|
 | Propagasi role | Butuh **5–15 menit** efektif — refresh atau re-login |
-| Sub-role tidak berdiri sendiri | Data Quality/Profile Steward & Reader **wajib digabung** dengan Governance Domain Reader + Data Product Owner |
+| Menu Unified Catalog di Settings | **Hanya muncul** bila Account type = Enterprise + tenant punya UC SKU aktif |
+| Menu "Roles and permissions" | **Hanya muncul** bila login user ada di role group **Data Governance** |
+| Sub-role tidak berdiri sendiri | DQ Steward / Profile Steward / Quality Reader **wajib digabung** dengan Governance Domain Reader + Data Product Owner |
 | Group vs user | Untuk produksi pakai **Microsoft Entra Group** agar mudah dikelola |
-| Tenant tanpa Unified Catalog | Kalau Solutions hanya menampilkan **Data Catalog** classic, fitur Data Quality tidak tersedia — perlu enable Unified Catalog & DGPU billing |
-| Tenant-level role groups | Kelola via **Settings → Roles and scopes → Role groups** (Compliance portal) — terpisah dari Unified Catalog roles |
-| Least privilege | Berikan steward role hanya pada domain yang relevan, jangan tenant-wide |
+| Tenant tanpa Unified Catalog | Bila Solutions hanya tampilkan **Data Catalog** classic, fitur Data Quality tidak tersedia — perlu enable Unified Catalog & DGPU billing |
+| Least privilege | Berikan steward role hanya pada domain yang relevan |
 
 ---
 
 ## ✅ Checkpoint
 
-- [ ] User demo punya **Governance Domain Creator** (catalog level)
+- [ ] **Account type = Enterprise** & **Active** (Settings → Account)
+- [ ] User admin sudah di role group **Data Governance** (Settings → Roles and scopes → Role groups)
+- [ ] (Opsional) User demo punya **Governance Domain Creator** (Settings → Solution settings → Unified Catalog → Roles and permissions)
 - [ ] Domain `Sales` sudah dibuat & **Published**
 - [ ] User demo punya semua role wajib di tab **Roles** domain
-- [ ] Bisa melihat halaman **Health management → Data quality**
-- [ ] Bisa membuka **Manage → Connections** (button visible) di Data quality
+- [ ] Bisa melihat **Health management → Data quality** dengan tombol Manage/Profile/+ New rule
 
 ---
 
 ## 🔗 Referensi
 
-- [Roles & permissions for Microsoft Purview data governance](https://learn.microsoft.com/purview/data-governance-roles-permissions)
+- [Roles & permissions for Microsoft Purview data governance](https://learn.microsoft.com/purview/data-governance-roles-permissions) *(updated 03/29/2026)*
 - [How to assign catalog-level roles](https://learn.microsoft.com/purview/data-governance-roles-permissions#how-to-assign-catalog-level-roles)
 - [How to assign governance domain roles](https://learn.microsoft.com/purview/data-governance-roles-permissions#how-to-assign-governance-domain-roles)
-- [Manage governance domains](https://learn.microsoft.com/purview/unified-catalog-governance-domains-create-manage)
-- [Tenant-level role groups (compliance portal)](https://learn.microsoft.com/purview/purview-permissions)
+- [Create and manage governance domains](https://learn.microsoft.com/purview/unified-catalog-governance-domains-create-manage) *(updated 04/21/2026)*
+- [Tenant-level role groups (Purview permissions)](https://learn.microsoft.com/purview/purview-permissions)
 
 ---
 
