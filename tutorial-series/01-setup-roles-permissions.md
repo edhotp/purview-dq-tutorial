@@ -66,23 +66,26 @@ flowchart TD
 ### 2. (Catalog level) Assign Governance Domain Creator
 > Lewati step ini jika user demo Anda sudah punya role tersebut.
 
-1. Klik **Settings** (ikon gear, kanan atas).
-2. Di panel Settings, di bawah **Solution settings**, pilih **Unified Catalog**.
-3. Pilih **Roles and permissions**.
+1. Klik **Settings** (ikon gear di **left side-nav**, posisi bawah).
+2. Halaman pertama akan memunculkan **Account overview**. Di sidebar Settings, scroll ke bagian **Solution settings**, lalu klik **Unified Catalog**.
+3. Pada halaman Unified Catalog, pilih **Roles and permissions**.
 4. Pilih role **Governance Domain Creator** → klik ikon **+ Add user**.
 5. Cari user demo → **Save**.
 6. (Opsional) ulangi untuk **Data Health Reader** / **Data Health Owner** bila demo perlu akses Health management lintas domain.
 
+> 💡 **Shortcut:** Bila tenant Anda sudah enable Unified Catalog, side-nav kiri akan menampilkan icon **Unified Catalog** langsung — bisa diklik untuk membuka catalog tanpa lewat **Solutions**.
+
 > 🔍 **Tidak menemukan menu "Unified Catalog" di Settings?**
 > Tenant Anda belum di-provision untuk Unified Catalog. Cek bahwa:
 > - DGPU billing sudah aktif (lihat [billing](https://learn.microsoft.com/purview/data-governance-billing)).
-> - Region Purview termasuk [supported region](https://learn.microsoft.com/purview/data-catalog-regions).
+> - Region Purview termasuk [supported region](https://learn.microsoft.com/purview/data-catalog-regions) — di **Settings → Account** Anda dapat melihat *Location* resource Purview.
+> - **Account type** = **Enterprise** (cek di Settings → Account overview). Free tier tidak punya Unified Catalog.
 > - Solutions panel menampilkan **Unified Catalog** (bukan hanya **Data Catalog** classic).
 
 ### 3. (Catalog level) Buat Governance Domain
 Modul lengkapnya ada di **[Modul 04](./04-create-governance-domain-data-product.md)**, tapi minimal harus ada satu domain dulu agar bisa assign role domain.
 
-1. Buka **Unified Catalog** dari side-nav (Solutions → Unified Catalog).
+1. Buka **Unified Catalog** dari **left side-nav** (icon Unified Catalog), atau lewat **Solutions → Unified Catalog**.
 2. Pilih **Governance domains** → **+ New governance domain**.
 3. Beri nama mis. `Sales`, type `Line of business` → **Save**.
 4. Klik domain → **Publish** (status harus *Published* sebelum bisa dipakai).
@@ -100,7 +103,7 @@ Modul lengkapnya ada di **[Modul 04](./04-create-governance-domain-data-product.
 
 ### 5. Verifikasi
 1. Logout & login ulang ke [https://purview.microsoft.com](https://purview.microsoft.com) (refresh token).
-2. Buka **Unified Catalog** → **Health management** → **Data quality**.
+2. Klik **Unified Catalog** di left side-nav → buka **Health management** → **Data quality**.
 3. Anda harus dapat melihat tombol **Manage**, **Profile**, dan **+ New rule** ketika navigasi ke asset di domain.
 
 ---
