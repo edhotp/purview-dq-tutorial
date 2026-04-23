@@ -50,27 +50,25 @@ flowchart TD
 1. Login ke [https://purview.microsoft.com](https://purview.microsoft.com).
 2. Pastikan tenant yang aktif benar (kanan atas).
 
-### 2. Akses Role Management
-1. Klik **Settings** (ikon gear, kanan atas).
-2. Di panel **Settings**, di bawah grup **Microsoft Purview**, pilih **Roles and scopes**.
-3. Pada halaman *Roles and scopes*, pilih **Governance domains** (atau **Data governance** → **Governance domains**, tergantung versi UI).
+### 2. Akses Governance Domain Roles
+> ⚠️ **Catatan:** Menu **Settings → Roles and scopes** di Purview portal hanya untuk role **Microsoft Entra ID / Role groups / Adaptive scopes / Administrative units** (compliance portal). Role **Unified Catalog** (Governance domain owner, Data quality steward, dll.) **tidak dikelola dari sana**, melainkan dari dalam **Unified Catalog**.
 
-> Sebagai alternatif, Anda bisa buka **Unified Catalog** → **Governance domains** → pilih domain → tab **Roles**. Hasilnya sama.
+1. Dari side-nav kiri, klik **Solutions** → pilih **Unified Catalog** (atau **Data Catalog** → **Unified Catalog**, tergantung versi UI).
+2. Pada Unified Catalog, buka **Governance domains**.
+3. Pilih (atau buat) domain target — mis. `Sales`.
+4. Buka tab **Roles**.
 
-### 3. Buat / Pilih Governance Domain
-> Bila domain `Sales` belum ada, biarkan dulu — akan dibuat di **Modul 04**. Untuk demo cepat, Anda bisa pakai domain default atau buat sementara.
-
-1. Pilih atau buat domain `Sales`.
-2. Buka tab **Roles**.
-
-### 4. Tambah User ke Role
+### 3. Tambah User ke Role
 Untuk **setiap role berikut**, klik **Edit** → tambahkan user/group demo Anda → **Save**:
 - ✅ Governance domain owner
 - ✅ Data quality steward
 - ✅ Data profile steward
 - ✅ Data health reader
+- (Opsional) Data quality reader — untuk audience read-only
 
-### 5. Verifikasi
+> Bila domain `Sales` belum ada, buat sementara dulu untuk testing role — domain final akan dibuat ulang/dipakai di **Modul 04**.
+
+### 4. Verifikasi
 1. Logout & login ulang (refresh token).
 2. Buka **Unified Catalog** → **Health management** → **Data quality**.
 3. Anda harus dapat melihat tombol **Manage**, **Profile**, dan **+ New rule** ketika navigasi ke asset.
